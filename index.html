@@ -383,6 +383,8 @@ button.pcl.fut { cursor: default; }
   .logo.anim .tile, #splash .logo, #splash .word { animation: none !important; opacity: 1 !important; }
   #splash { animation: sfade .3s ease .6s forwards; }
 }
+/* no double-tap zoom; pinch zoom still works */
+* { touch-action: manipulation; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
