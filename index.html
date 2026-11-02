@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#161A25">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -442,6 +444,7 @@ button.pcl.fut { cursor: default; }
   var msg = "";
   var armed = "";
   var armTimer = null;
+  var renderedDay = "";
   var reorder = false, lastArchived = "", focusGrip = -1, chRange = 30;
 
   /* ---------- dates ---------- */
@@ -1635,6 +1638,7 @@ button.pcl.fut { cursor: default; }
     paintTabs(idx);
   }
   function render() {
+    renderedDay = key(today());
     var app = document.getElementById("app");
     var kids = view.name === "note" ? noteView() : view.name === "log" ? logView() : view.name === "detail" ? detailView() : view.name === "form" ? formView()
       : tab === "overview" ? overviewView() : tab === "account" ? accountView() : listView();
@@ -1645,9 +1649,17 @@ button.pcl.fut { cursor: default; }
   }
 
   var lastLeft = 0;
+  function checkDay() {
+    if (key(today()) !== renderedDay && ["form", "log", "note"].indexOf(view.name) < 0 && !reorder) { render(); return true; }
+    return false;
+  }
   setInterval(function () {
+    if (checkDay()) return;
     if (view.name === "list" && tab === "tracking" && !reorder) { var l = remindLeft(); if (l !== lastLeft) { lastLeft = l; render(); } }
   }, 30000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) checkDay(); });
+  window.addEventListener("pageshow", checkDay);
+  window.addEventListener("focus", checkDay);
   data = load();
   save();
   applySettings();
